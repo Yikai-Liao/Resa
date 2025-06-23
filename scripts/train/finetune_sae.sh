@@ -1,8 +1,5 @@
 #!/bin/bash
 
-
-MAMBA_ENV="resa"
-source "./.venv/bin/activate"
 echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 

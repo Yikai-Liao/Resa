@@ -21,6 +21,7 @@ def make_conv_for_grpo_l1(example, system_prompt, min_length, max_length):
     }
 
 def make_conv_for_sft(example, dataset_name_or_path, tokenizer, trace_free=False):
+    tokenizer.padding_side = "left"
     if dataset_name_or_path == "simplescaling/s1K-claude-3-7-sonnet":
         trajectory_name = "claude_thinking_trajectory"
         attemp_name = "claude_attempt"

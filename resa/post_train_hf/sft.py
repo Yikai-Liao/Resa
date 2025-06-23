@@ -3,12 +3,12 @@ from datasets import Dataset, load_dataset
 from datetime import datetime
 import logging
 import os
-from peft import get_peft_model, LoraConfig, TaskType, PeftModel
+from peft import get_peft_model, LoraConfig, TaskType, PeftModel, prepare_model_for_kbit_training
 import sys
 from tqdm import tqdm
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed, Trainer
+from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed, Trainer, BitsAndBytesConfig
 from transformers.trainer_utils import get_last_checkpoint
 import trl
 from trl import ModelConfig, SFTConfig, SFTTrainer, TrlParser, DataCollatorForCompletionOnlyLM
@@ -150,7 +150,8 @@ def main():
     # Load and preprocess dataset (tokenization is handled by SFT Trainer)
     #######################################################################
 
-    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path)
+    tokenizer.padding_side = "left"
     model_post_train_dataset_name = SFT_POST_TRAIN_DATASET_MAP[pt_args.model_post_train_dataset_name]
 
     if pt_args.model_post_train_dataset_config is not None:
@@ -174,14 +175,27 @@ def main():
     # Load the model
     ################
 
+    # QLoRA configuration
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
+
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
+        quantization_config=bnb_config if model_args.use_peft else None,
         torch_dtype=torch.bfloat16,
         attn_implementation=model_args.attn_implementation,
-        use_cache=False if training_args.gradient_checkpointing else True)
+        use_cache=False)  # Always False for training to avoid conflicts
 
     if model_args.use_peft:
-        logger.info(f"\n Using PEFT with {model_args.lora_r} rank, {model_args.lora_alpha} alpha, {model_args.lora_dropout} dropout.")
+        logger.info(f"\n Using QLoRA with {model_args.lora_r} rank, {model_args.lora_alpha} alpha, {model_args.lora_dropout} dropout.")
+        
+        # Prepare model for k-bit training
+        model = prepare_model_for_kbit_training(model)
+        
         peft_config = LoraConfig(
             r=model_args.lora_r,
             lora_alpha=model_args.lora_alpha,
@@ -191,6 +205,10 @@ def main():
             bias="none",
             task_type=TaskType.CAUSAL_LM)
         model = get_peft_model(model, peft_config)
+        
+        # Force memory cleanup and synchronization
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
 
     ############################
     # Initialize the SFT Trainer

@@ -4,10 +4,11 @@ model_post_train_type: sft
 
 # Model configs from trl
 model_name_or_path: DeepSeek-R1-Distill-Qwen-1.5B
-attn_implementation: flash_attention_2
+attn_implementation: eager
 use_peft: true
-lora_r: 32
-lora_alpha: 128
+# QLoRA configuration - the model will be quantized to 4-bit with NF4
+lora_r: 16
+lora_alpha: 64
 lora_dropout: 0.05
 lora_target_modules:
 - q_proj
@@ -22,10 +23,10 @@ lora_target_modules:
 bf16: true
 do_eval: true
 dataset_text_field: text
-gradient_accumulation_steps: 1
-gradient_checkpointing: true
+gradient_accumulation_steps: 1  # Reduce since we're increasing batch size
+gradient_checkpointing: false  # Enable for memory savings
 gradient_checkpointing_kwargs:
-  use_reentrant: false
+  use_reentrant: false  # Recommended setting for newer PyTorch versions
 learning_rate: 1e-05
 logging_strategy: steps
 log_level: info
@@ -37,10 +38,11 @@ hub_model_id: upup-ashton-wang # TODO
 
 max_grad_norm: 1
 max_seq_length: 2048
-num_train_epochs: 3
+num_train_epochs: 1
 overwrite_output_dir: true
 packing: false
-per_device_train_batch_size: 16
+per_device_train_batch_size: 8  # Increased back to 4 for faster training
+dataloader_num_workers: 16  # Increased for better data loading performance
 report_to:
 - wandb
 save_strategy: steps

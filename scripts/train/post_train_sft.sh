@@ -1,14 +1,13 @@
 #!/bin/bash
 
 
-MAMBA_ENV="resa"
-eval "$(mamba shell hook --shell bash)" && mamba activate "${MAMBA_ENV}"
 echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 
 source "./scripts/set/set_vars.sh"
 
-export CUDA_VISIBLE_DEVICES=3,6 # Set the GPUs you want to use
+export CUDA_VISIBLE_DEVICES=0 # Set the GPUs you want to use
+export DISABLE_FLASH_ATTN=1 # Disable flash attention 2 (required for QLoRA compatibility)
 GPU_COUNT=$(python -c "import torch; print(torch.cuda.device_count())")
 
 echo ""
@@ -27,7 +26,7 @@ PY_CONFIG="./recipes/${MODEL_NAME}/sft/model_${DATASET_NAME}.yaml"
 ACCELERATE_DS_CONFIG="./recipes/accelerate_ds_cfgs/ds_zero2.yaml"
 
 echo ""
-echo "Running ${PY_SCRIPT} on model ${MODEL_NAME} with dataset ${DATASET_NAME}"
+echo "Running ${PY_SCRIPT} on model ${MODEL_NAME} with dataset ${DATASET_NAME} using QLoRA"
 echo ""
 
 ACCELERATE_LOG_LEVEL=info accelerate launch \

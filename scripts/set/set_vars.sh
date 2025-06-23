@@ -38,11 +38,17 @@ export OUTPUT_DIR="${PROJECT_DIR}/outputs"
 export LOGGING_DIR="${PROJECT_DIR}/logs"
 mkdir -p "${CKPT_DIR}" "${DATA_DIR}" "${OUTPUT_DIR}" "${LOGGING_DIR}"
 
-export WANDB_API_KEY="TODO"
+# WANDB_API_KEY should be set as an environment variable for security
+# Example: export WANDB_API_KEY="your_wandb_key_here" before running this script
+if [ -z "$WANDB_API_KEY" ]; then
+    echo "Warning: WANDB_API_KEY environment variable is not set"
+    echo "Please set it with: export WANDB_API_KEY='your_wandb_api_key'"
+else
+    wandb login $WANDB_API_KEY
+fi
+
 export WANDB_PROJECT="${TOPIC_NAME}"
 export WANDB_DIR="${OUTPUT_DIR}"
-
-wandb login $WANDB_API_KEY
 
 export CACHE_DIR="${PROJECT_DIR}/.cache"
 export WANDB_CACHE_DIR="${CACHE_DIR}"

@@ -1,14 +1,11 @@
 #!/bin/bash
 
-
-MAMBA_ENV="resa"
-eval "$(mamba shell hook --shell bash)" && mamba activate "${MAMBA_ENV}"
 echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 
 source "./scripts/set/set_vars.sh"
 
-export CUDA_VISIBLE_DEVICES=3,4 # Set the GPUs you want to use
+export CUDA_VISIBLE_DEVICES=0,1 # Set the GPUs you want to use
 GPU_COUNT=$(python -c "import torch; print(torch.cuda.device_count())")
 
 echo ""
@@ -63,7 +60,7 @@ SAE_HOOKPOINT_LIST=("model.layers.12")
 #SAE_TYPE="pretrained"
 #SAE_HOOKPOINT_LIST=("layers.12.mlp")
 
-PY_SCRIPT="./scripts/train/run_sae_based_distill.py"
+PY_SCRIPT="./scripts/train/run_sae_tuning.py"
 PY_CONFIG="./recipes/${MODEL_NAME}/grpo/distill_${PT_DATASET_NAME}.yaml"
 ACCELERATE_DS_CONFIG="./recipes/accelerate_ds_cfgs/ds_zero2.yaml"
 
