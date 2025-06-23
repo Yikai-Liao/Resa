@@ -2,7 +2,7 @@
 
 
 MAMBA_ENV="resa"
-eval "$(mamba shell hook --shell bash)" && mamba activate "${MAMBA_ENV}"
+source "./.venv/bin/activate"
 echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 
