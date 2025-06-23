@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "datasets>=3.6.0",
-    "huggingface_hub[cli,hf-xet]>=0.33.0",
+    "huggingface-hub[cli,hf-transfer,hf-xet]>=0.33.0",
     "ipython>=9.3.0",
     "sparsify",
     "torch>=2.7.1",

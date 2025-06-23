@@ -6,7 +6,7 @@ echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 
 source "./scripts/set/set_vars.sh"
-
+export HF_HUB_ENABLE_HF_TRANSFER=1
 PY_SCRIPT="./scripts/set/run_download_model_sae.py"
 
 echo ""
