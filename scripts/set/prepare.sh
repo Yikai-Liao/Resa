@@ -2,7 +2,6 @@
 
 
 MAMBA_ENV="resa"
-eval "$(mamba shell hook --shell bash)" && mamba activate "${MAMBA_ENV}"
 echo "START TIME: $(date)"
 echo "PYTHON ENV: $(which python)"
 
@@ -14,7 +13,7 @@ echo ""
 echo "Running script: ${PY_SCRIPT}"
 echo ""
 
-python "${PY_SCRIPT}"
+uv run python "${PY_SCRIPT}"
 
 echo "END TIME: $(date)"
 echo "DONE"

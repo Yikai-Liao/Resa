@@ -1,7 +1,11 @@
+
+
+# show the python interpreter path
+import sys
+print(f"Python interpreter: {sys.executable}")
+
 from huggingface_hub import snapshot_download
 import os
-
-
 if __name__ == "__main__":
     CKPT_DIR = os.environ['CKPT_DIR']
 
