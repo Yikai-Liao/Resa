@@ -48,9 +48,15 @@ export CACHE_DIR="${PROJECT_DIR}/.cache"
 export WANDB_CACHE_DIR="${CACHE_DIR}"
 export TRITON_CACHE_DIR="${CACHE_DIR}/triton_cache"
 
-export HF_TOKEN="TODO"
-git config --global credential.helper store
-huggingface-cli login --token $HF_TOKEN --add-to-git-credential
+# HF_TOKEN should be set as an environment variable for security
+# Example: export HF_TOKEN="your_token_here" before running this script
+if [ -z "$HF_TOKEN" ]; then
+    echo "Warning: HF_TOKEN environment variable is not set"
+    echo "Please set it with: export HF_TOKEN='your_huggingface_token'"
+else
+    git config --global credential.helper store
+    huggingface-cli login --token $HF_TOKEN --add-to-git-credential
+fi
 
 export HF_HOME="${CACHE_DIR}/huggingface"
 export HUGGINGFACE_HUB_CACHE="${HF_HOME}/hub"
